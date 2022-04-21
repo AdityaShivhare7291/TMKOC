@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        *{
+            margin: 0%;
+            padding: 0%;
+        }
+        .sec{
+            width:100%;
+            position: relative;
+        }
+        .back{
+            background-color: rgb(43, 33, 33);
+            width:50%;
+            height: 100vh;
+            margin: auto;    
+            position: relative;
+            overflow: hidden;   
+            z-index: 5;     
+        }
+        .message{
+           width: 250px;
+           height: 100px;
+           background-color:black;
+           color: white;
+           border: solid rgb(255, 109, 109) 2px;
+            z-index: 10;
+            position: absolute;
+            left: 40%;
+            
+            top: 40%;
+        }
+        .hide{
+            display: none;
+        }
+        .score
+{
+    width: 300px;
+    height: 100px;
+    text-align: center;
+    background-color: aqua;
+    color:crimson;
+    position: absolute;
+}
+        .car{
+            width:100px;
+            height: 100px;
+            background-color: aqua;
+            background: url("z5.png");
+            position: absolute;
+            bottom: 100px;
+        left: 0px;
+        z-index: 1;
+        }
+        .roadline{
+            width: 20px;
+            height: 85px;
+            background-color: azure;
+            position: absolute;
+            margin-left: 49%;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .roadl{
+            width:100px;
+            height: 100px;
+            background:url("Iyer\ \(1\).png");
+            position: absolute;
+            bottom: 100px;
+        }
+    </style>
+</head>
+<body>
+    <section class="sec">
+        <div class="score">
+<p>Score:</p>
+<p id="sco"></p>
+        </div>
+        <div class="back hide">
+        
+        </div>
+        <div class="message">
+         <p id="ch">Plz start the game by clicking Enter.<br>
+             On hitting hte  car the game is over.
+         </p>
+        </div>
+
+    </section>
+    <script>
+        let enemy=['url("daya\ \(1\).png")','url("babita\ \(1\).png")','url("Iyer\ \(2\).png")'];
+        const score=document.querySelector('.score');
+        const playground=document.querySelector('.back');
+        const alert=document.querySelector('.message'); 
+        document.addEventListener('keydown',keyDown);
+        alert.addEventListener('click',start);
+        let player = {
+                    start:true,
+                    score:0
+                    };
+        let border={};
+        document.addEventListener('keyup',keyUp);
+        let keys={
+            ArrowUp:false,
+            ArrowDown:false,
+            ArrowLeft:false,
+            ArrowRight:false
+        }
+        function keyDown(e){
+          e.preventDefault();
+          keys[e.key]=true;
+          }
+        function keyUp(e){
+          e.preventDefault();
+          keys[e.key]=false;
+          }
+          function movelines(){
+              let mlines=document.querySelectorAll('.roadline');
+             
+              mlines.forEach(function(item){
+                  item.y+=5;
+                  if(item.y>800)
+              {
+                  item.y-=850;
+              }
+                  item.style.top = item.y +"px";
+              })
+          }
+            function movecar(){
+            let mlines=document.querySelectorAll('.roadl');
+            let road=playground.getBoundingClientRect();
+            let car=document.querySelector('.car');
+            mlines.forEach(function(item){
+                 
+                  if(item.y>900)
+              {
+                    item.x=Math.floor(Math.random()*(road.right-road.left-50));
+                    item.style.left=item.x +"px";   
+                    item.y-=950;
+                    let enn=Math.floor(Math.random()*3);
+                  console.log( enemy[enn] );
+                  item.style.background=enemy[enn];
+              }
+                  let l=item.getBoundingClientRect();
+                  item.style.top = item.y +"px";
+                  let laa=car.getBoundingClientRect();
+                  let c=l.left-laa.left;
+                  let d=laa.top-l.bottom;
+                  
+                 
+                  
+                  if(d<0 && d>-100 && c<90 && c>-90 )
+                 {
+                     player.start=false;
+                     document.getElementById('ch').innerHTML="The game is over";
+                     alert.classList.remove('hide');
+                     alert.addEventListener('click',function()
+                     {
+                         player.start=true;
+                     })
+                 }
+                 item.y+=5;
+          })
+           
+         
+        }
+        function play()
+        {  
+            if(player.start){
+            let road=playground.getBoundingClientRect();
+            let topend=road.top;
+            let bottomend=road.bottom;
+            let leftend=road.left;
+            let rightend=road.right;      
+            movelines();
+            movecar();
+            if(keys.ArrowUp && player.y>topend)
+            {
+                player.y -=5
+            } 
+            if(keys.ArrowDown && player.y<(bottomend-70))
+            {
+                player.y +=5
+            }
+            if(keys.ArrowLeft && player.x>0)
+            {
+                player.x -=5
+            }
+            if(keys.ArrowRight && player.x<(rightend-leftend-70))
+            {
+                player.x +=5
+            }
+            let change=document.querySelector('.car');
+            change.style.top= player.y +"px";
+            change.style.left= player.x +"px";
+            requestAnimationFrame(play);
+            player.score++;
+            document.getElementById('sco').innerText=player.score;
+        }
+    }
+        
+        function start()
+        {
+            if(player.start)
+            {
+            player.score=0;
+            playground.classList.remove('hide');
+            alert.classList.add('hide');
+            playground.innerHTML="";
+            requestAnimationFrame(play); 
+            var car= document.createElement('div');
+            car.setAttribute('class','car');
+            playground.appendChild(car);
+            player.x=car.offsetLeft;
+            player.y=car.offsetTop;
+            console.log(car.offsetLeft);
+            console.log(car.offsetTop);
+            let road=playground.getBoundingClientRect();
+            for(let i=0;i<9;i++)
+            {
+            let roadline=document.createElement('div');
+            roadline.setAttribute('class','roadline'); 
+            playground.appendChild(roadline);
+            roadline.y=(i*105);
+            roadline.style.top=roadline.y+"px";
+        }
+        for(let i=0;i<4;i++)
+            {
+            let roadl=document.createElement('div');
+            roadl.setAttribute('class','roadl'); 
+            playground.appendChild(roadl);
+            roadl.y=(i*205);
+            roadl.x=Math.floor(Math.random()*(road.right-road.left-50));
+            roadl.style.top=roadl.y+"px";
+            roadl.style.left=roadl.x+"px";
+        }
+    }
+    }
+    </script>
+</body>
+</html>
